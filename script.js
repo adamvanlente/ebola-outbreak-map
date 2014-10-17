@@ -30,8 +30,8 @@ var ebolaMap = {
     // Set the map.
     loadMap: function() {
       this.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 4,
-        center: new google.maps.LatLng(12.254128 , -1.538086),
+        zoom: 3,
+        center: new google.maps.LatLng(10, -24),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles: [{
           stylers: [{
@@ -103,7 +103,7 @@ var ebolaMap = {
         var lon = coords[0];
 
         var counterText =
-            'case: ' + ebolaMap.currentIndex + '/' + ebolaMap.features.length;
+            'case: ' + ebolaMap.currentIndex;
         $('#count').html(counterText);
         ebolaMap.heatmapData.push(new google.maps.LatLng(lat, lon));
 
