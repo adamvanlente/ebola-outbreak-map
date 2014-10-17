@@ -29,22 +29,31 @@ var ebolaMap = {
 
     // Set the map.
     loadMap: function() {
-      this.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 4,
-        center: new google.maps.LatLng(10, -10),
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        styles: [{
-          stylers: [{
-            saturation: -80
-          }]}, {
-          featureType: 'poi.park',
-          stylers: [{
-            visibility: 'off'
-          }]
-        }],
-        disableDefaultUI: true
-      });
-      this.setHeatmap();
+
+      if (window.google) {
+        this.map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: new google.maps.LatLng(10, -10),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          styles: [{
+            stylers: [{
+              saturation: -80
+            }]}, {
+            featureType: 'poi.park',
+            stylers: [{
+              visibility: 'off'
+            }]
+          }],
+          disableDefaultUI: true
+        });
+        this.setHeatmap();
+      } else {
+
+        L.mapbox.accessToken = 'pk.eyJ1IjoiYWRhbXZhbmxlbnRlIiwiYSI6Ik8xUDRBczAifQ.0TeqMkP0SGcvepgzYiSsHA';
+        this.mapboxMap = L.mapbox.map('map', 'adamvanlente.jpobma50');
+        ebolaMap.heatLayer = L.heatLayer([], {maxZoom: 18}).addTo(this.mapboxMap);
+      }
+
       this.loadData();
     },
 
@@ -101,6 +110,12 @@ var ebolaMap = {
         var coords = item.geometry.coordinates;
         var lat = coords[1];
         var lon = coords[0];
+
+        var cat = item.properties.Category;
+        var val = item.properties.Value;
+        if (cat == 'Deaths') {
+          console.log(val);
+        }
 
         // var counterText =
         //     'case: ' + ebolaMap.currentIndex;
@@ -216,6 +231,82 @@ var ebolaMap = {
       $('#year').html(newYear);
       $('#month').html(newMonth);
       $('#day').html(newDay);
+
+    },
+
+    playPauseMapbox: function() {
+
+      if (ebolaMap.features) {
+
+        if (ebolaMap.isPlaying) {
+          ebolaMap.isPlaying = false;
+          $('#play-button').attr('class', 'fa fa-play');
+          window.clearInterval(ebolaMap.pinInterval)
+        } else {
+          $('#play-button').attr('class', 'fa fa-pause');
+          this.setMapboxMarkers();
+        }
+
+
+      } else {
+        var msg = 'Data is not yet loaded.';
+        this.setMsg(msg);
+      }
+
+    },
+
+    setMapboxMarkers: function() {
+
+      this.isPlaying = true;
+
+      var features = ebolaMap.features;
+
+      features.sort(function(a,b) {
+        return
+            parseInt(a.properties.Date,10) - parseInt(b.properties.Date,10);
+      });
+
+      if (features[ebolaMap.currentIndex]) {
+        var item = features[ebolaMap.currentIndex];
+
+        ebolaMap.setDateOnScreen(item);
+
+        var coords = item.geometry.coordinates;
+        var lat = coords[1];
+        var lon = coords[0];
+
+        ebolaMap.heatLayer.addLatLng([lat, lon]);
+
+        var cat = item.properties.Category;
+        var val = item.properties.Value;
+
+        var marker = L.circleMarker(new L.LatLng(lat, lon), {
+          'stroke': true,
+          'weight': 3,
+          'opacity': 0.5,
+          'color': '#000',
+          'fillColor': '#000'
+        });
+
+        marker.addTo(ebolaMap.mapboxMap);
+
+        ebolaMap.updateMapboxMarker(marker);
+
+        ebolaMap.currentIndex++;
+
+        if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
+          ebolaMap.pinInterval = setTimeout(ebolaMap.setMapboxMarkers, 1);
+        }
+      }
+    },
+
+    updateMapboxMarker: function(marker) {
+      setTimeout(function() {
+      marker.setStyle({
+        'fillColor':'#f86767',
+        'opacity': 0
+      });
+    }, 200)
 
     },
 

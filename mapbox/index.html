@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.js'></script>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-heat/v0.1.0/leaflet-heat.js'></script>
+
+  <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.2/mapbox.css' rel='stylesheet' />
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+  <style type="text/css">
+
+    #map {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
+
+    .map-holder {
+      display: block;
+      position: fixed;
+      top: 50px;
+      bottom: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .title-bar {
+      background: rgb(237, 234, 234);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px;
+      height: 26px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-weight: 100;
+      font-size: 23px;
+    }
+
+    .title-bar i {
+      margin-left: 25px;
+    }
+
+    .date {
+      display: none;
+      position: fixed;
+      z-index: 5;
+      right: 8px;
+      top: 6px;
+      font-family: "Helvetica Neue", sans-serif;
+      font-weight: 100;
+    }
+
+    .date span {
+      font-size: 22px;
+      background: rgba(128, 128, 128, 0.13);
+      padding: 4px 12px;
+      margin: 1px;
+    }
+
+    .month,
+    .day {
+      display: inline-block;
+      width: 33px;
+      text-align: center;
+    }
+
+    .year {
+      display: inline-block;
+      width: 45px;
+      text-align: center;
+    }
+
+  </style>
+
+</head>
+<body>
+
+  <div id="title-bar" class="title-bar">
+    <span>Ebola Outbreak Mapped</span>
+    <label class="controls"><i id="play-button" class="fa fa-play" onclick="ebolaMap.playPauseMapbox();"></i></label>
+    <span id="message"></span>
+  </div>
+
+  <div id="date" class="date">
+    <span id="month" class="month">Oct</span>
+    <span id="day" class="day">22</span>
+    <span id="year" class="year">2014</span>
+  </div>
+
+  <div id="map-holder" class="map-holder">
+    <div id="map"></div>
+  </div>
+
+  <script src='../script.js'></script>
+
+  <script type="text/javascript">
+
+
+
+  </script>
+
+
+</body>
+</html>
