@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ebola Outbreak Timelapse</title>
+
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=visualization"></script>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+
+</head>
+<body>
+
+  <div id="map"></div>
+  <div class="controls">
+    <span class="title">Ebola Outbreak Mapped</span>
+    <i class="fa fa-play" id="control-icon" onclick="ebolaMap.playOrPause();"></i>
+    <span class="message" id="message"></span>
+  </div>
+
+  <div id="date" class="date">
+    <span id="month" class="month">Oct</span>
+    <span id="day" class="day">22</span>
+    <span id="year" class="year">2014</span>
+  </div>
+
+  <script type="text/javascript" src="script.js"></script>
+
+
+</body>
+</html>

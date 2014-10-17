@@ -1,0 +1,71 @@
+#map {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  border: 9px solid rgb(247, 247, 247);
+  top: 76px;
+  bottom: 0;
+}
+
+.controls {
+  display: block;
+  z-index: 2;
+  position: fixed;
+  background: rgb(247, 247, 247);
+  left: 0%;
+  right: 0%;
+  top: 0px;
+  text-align: center;
+  padding: 12px 0;
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 100;
+  font-size: 22px;
+  color: #333;
+}
+
+.controls i {
+  display: inline-block;
+  cursor: pointer;
+}
+
+.controls .title {
+  display: block;
+}
+
+.controls .message {
+  display: block;
+  color: red;
+  font-size: 13px;
+  font-weight: 300;
+}
+
+.date {
+  display: none;
+  position: fixed;
+  z-index: 5;
+  right: 20px;
+  top: 20px;
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 100;
+}
+
+.date span {
+  font-size: 22px;
+  background: rgba(128, 128, 128, 0.13);
+  padding: 4px 12px;
+  margin: 1px;
+}
+
+.month,
+.day {
+  display: inline-block;
+  width: 33px;
+  text-align: center;
+}
+
+.year {
+  display: inline-block;
+  width: 45px;
+  text-align: center;
+}
