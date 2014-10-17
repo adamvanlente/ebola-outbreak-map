@@ -23,7 +23,7 @@ var ebolaMap = {
     // Set the map.
     loadMap: function() {
       this.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 6,
+        zoom: 4,
         center: new google.maps.LatLng(12.254128 , -1.538086),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles: [{
@@ -87,17 +87,20 @@ var ebolaMap = {
         var lat = coords[1];
         var lon = coords[0];
 
+        var counterText =
+            'case: ' + ebolaMap.currentIndex + '/' + ebolaMap.features.length;
+        $('#count').html(counterText);
+
         ebolaMap.heatmapData.push(new google.maps.LatLng(lat, lon));
 
         ebolaMap.setDateOnScreen(item);
 
-        ebolaMap.addIncidentPin(lat, lon);
-
         ebolaMap.setCurrentBounds(lat, lon);
+
         ebolaMap.currentIndex++;
 
         if (ebolaMap.currentIndex < ebolaMap.features.length) {
-          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 300);
+          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 5);
         }
       }
     },
@@ -142,69 +145,6 @@ var ebolaMap = {
       $('#month').html(newMonth);
       $('#day').html(newDay);
 
-    },
-
-    // Add a pin for an incident.  Give the pin an animation effect.
-    addIncidentPin: function(lat, lon) {
-        var location = new google.maps.LatLng(lat, lon);
-
-        var outer = new google.maps.Marker({
-          position: location,
-          clickable: false,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            fillOpacity: 0.5,
-            fillColor: 'rgb(213, 102, 102)',
-            strokeOpacity: 1.0,
-            strokeColor: 'rgb(213, 102, 102)',
-            strokeWeight: 1.0,
-            scale: 0,
-          },
-          optimized: false,
-          zIndex: this.currentIndex,
-          map: this.map
-        });
-
-        var inner = new google.maps.Marker({
-          position: location,
-          clickable: false,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            fillOpacity: 1.0,
-            fillColor: 'rgb(213, 102, 102)',
-            strokeWeight: 0,
-            scale: 0
-          },
-          optimized: false,
-          zIndex: ebolaMap.currentIndex
-        });
-
-        for (var i = 0; i <= 10; i++) {
-          setTimeout(this.setScale(inner, outer, i / 10), i * 60);
-        }
-    },
-
-    // Scale a pin to give it an animated appearance.
-    setScale: function(inner, outer, scale) {
-      return function() {
-        if (scale == 1) {
-          outer.setMap(null);
-        } else {
-          var icono = outer.get('icon');
-          icono.strokeOpacity = Math.cos((Math.PI/2) * scale);
-          icono.fillOpacity = icono.strokeOpacity * 0.5;
-          icono.scale = Math.sin((Math.PI/2) * scale) * 15;
-          outer.set('icon', icono);
-
-          var iconi = inner.get('icon');
-          var newScale = (icono.scale < 2.0 ? 0.0 : 2.0);
-          if (iconi.scale != newScale) {
-            iconi.scale = newScale;
-            inner.set('icon', iconi);
-            if (!inner.getMap()) inner.setMap(ebolaMap.map);
-          }
-        }
-      }
     },
 
     // Set a message for the user.
