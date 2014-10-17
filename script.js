@@ -68,7 +68,7 @@ var ebolaMap = {
         if (this.isPlaying) {
           this.isPlaying = false;
           $('#control-icon').attr('class', 'fa fa-play');
-          window.clearInterval(this.tpinInterval);
+          window.clearInterval(this.pinInterval);
         } else {
           $('#control-icon').attr('class', 'fa fa-pause');
           this.placePinsOnMap();
@@ -97,7 +97,7 @@ var ebolaMap = {
         ebolaMap.currentIndex++;
 
         if (ebolaMap.currentIndex < ebolaMap.features.length) {
-          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 400);
+          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 300);
         }
       }
     },
