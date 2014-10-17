@@ -1,13 +1,6 @@
 var ebolaMap = {
 
-    // isPlaying: false,
-    // pinInterval: false,
-    // data: false,
-    // map: false,
-    // heatmap,
-    // heatmapData;
-
-
+    // Data Source
     dataUrl: 'https://www.googleapis.com/mapsengine/' +
         'v1/tables/04616881874294944172-05039038523903420493/' +
         'features?key=AIzaSyC9ZH9TiysgRkspUPRt2JiE459pKkXrOLM' +
@@ -16,6 +9,7 @@ var ebolaMap = {
     currentIndex: 0,
     boundsArray: [],
 
+    // Load and store data.
     loadData: function() {
       $.ajax({
         url: this.dataUrl,
@@ -26,9 +20,10 @@ var ebolaMap = {
       });
     },
 
+    // Set the map.
     loadMap: function() {
       this.map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 4,
+        zoom: 6,
         center: new google.maps.LatLng(12.254128 , -1.538086),
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         styles: [{
@@ -46,6 +41,7 @@ var ebolaMap = {
       this.loadData();
     },
 
+    // Initialize a heatmap that will grow.
     setHeatmap: function() {
       this.heatmapData = new google.maps.MVCArray();
       this.heatmap = new google.maps.visualization.HeatmapLayer({
@@ -62,6 +58,7 @@ var ebolaMap = {
             });
     },
 
+    // Play/pause the timelapse.
     playOrPause: function() {
       if (!this.features) {
           var msg = 'Data is not yet loaded.';
@@ -79,6 +76,7 @@ var ebolaMap = {
       }
     },
 
+    // Place pins on the map for each Ebola case.
     placePinsOnMap: function() {
 
       this.isPlaying = true;
@@ -93,7 +91,7 @@ var ebolaMap = {
 
         ebolaMap.setDateOnScreen(item);
 
-        ebolaMap.addCase(lat, lon);
+        ebolaMap.addIncidentPin(lat, lon);
 
         ebolaMap.setCurrentBounds(lat, lon);
         ebolaMap.currentIndex++;
@@ -104,18 +102,26 @@ var ebolaMap = {
       }
     },
 
+    // Add coordinates and reset the viewport.
     setCurrentBounds: function(lat, lon) {
       var mapPoint = new google.maps.LatLng(lat, lon);
       this.boundsArray.push(mapPoint);
 
-      var bounds = new google.maps.LatLngBounds;
-      this.boundsArray.forEach(function(latlng) {
-        bounds.extend(latlng);
-      });
-
-      this.map.fitBounds(bounds);
+      this.startBoundsSetter();
     },
 
+    // Only set the bounds from time to time, so its not so shaky.
+    startBoundsSetter: function() {
+      setTimeout(function() {
+        var bounds = new google.maps.LatLngBounds;
+        ebolaMap.boundsArray.forEach(function(latlng) {
+          bounds.extend(latlng);
+        });
+        ebolaMap.map.fitBounds(bounds);
+      }, 500);
+    },
+
+    // Set/update the current date of the pin being placed.
     setDateOnScreen: function(item) {
       var itemDate = item.properties.Date;
       var ogYear = itemDate.substr(0, 4);
@@ -138,7 +144,8 @@ var ebolaMap = {
 
     },
 
-    addCase: function(lat, lon) {
+    // Add a pin for an incident.  Give the pin an animation effect.
+    addIncidentPin: function(lat, lon) {
         var location = new google.maps.LatLng(lat, lon);
 
         var outer = new google.maps.Marker({
@@ -177,6 +184,7 @@ var ebolaMap = {
         }
     },
 
+    // Scale a pin to give it an animated appearance.
     setScale: function(inner, outer, scale) {
       return function() {
         if (scale == 1) {
@@ -199,6 +207,7 @@ var ebolaMap = {
       }
     },
 
+    // Set a message for the user.
     setMsg: function(msg) {
       $('#message').html(msg);
       setTimeout(function() {
@@ -207,5 +216,5 @@ var ebolaMap = {
     }
 };
 
-
+// Load map & data.
 ebolaMap.loadMap();

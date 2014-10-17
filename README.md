@@ -1,3 +1,3 @@
-  ## Ebola Map
+## Ebola Map
 
-  A timelapse of Ebola cases, March-Oct 2014
+A timelapse of Ebola cases, March-Oct 2014
