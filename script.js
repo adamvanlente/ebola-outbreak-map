@@ -113,8 +113,8 @@ var ebolaMap = {
 
         ebolaMap.currentIndex++;
 
-        if (ebolaMap.currentIndex < ebolaMap.features.length) {
-          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 5);
+        if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
+          ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 3);
         }
 
       }
