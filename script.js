@@ -1,10 +1,9 @@
 var ebolaMap = {
 
-    // Data Source
-    dataUrl: 'https://www.googleapis.com/mapsengine/' +
-        'v1/tables/04616881874294944172-05039038523903420493/' +
-        'features?key=AIzaSyC9ZH9TiysgRkspUPRt2JiE459pKkXrOLM' +
-        '&version=published&maxResults=1000',
+    dataUrl: 'https://www.googleapis.com/mapsengine/v1/tables/' +
+        '04616881874294944172-01677512005004143246/features?key=' +
+        'AIzaSyC9ZH9TiysgRkspUPRt2JiE459pKkXrOLM&version=' +
+        'published&maxResults=1000',
 
     currentIndex: 0,
     boundsArray: [],
@@ -15,7 +14,15 @@ var ebolaMap = {
         url: this.dataUrl,
         cache: false,
         success: function(mapData){
-          ebolaMap.features = mapData.features;
+
+          var items = mapData.features;
+
+          items.sort(function(a,b) {
+            // assuming distance is always a valid integer
+            return parseInt(a.properties.Date,10) - parseInt(b.properties.Date,10);
+          });
+
+          ebolaMap.features = items;
         }
       });
     },
@@ -81,8 +88,16 @@ var ebolaMap = {
 
       this.isPlaying = true;
 
-      if (ebolaMap.features[ebolaMap.currentIndex]) {
-        var item = ebolaMap.features[ebolaMap.currentIndex];
+      var features = ebolaMap.features;
+
+      features.sort(function(a,b) {
+        return
+            parseInt(a.properties.Date,10) - parseInt(b.properties.Date,10);
+      });
+
+      if (features[ebolaMap.currentIndex]) {
+        var item = features[ebolaMap.currentIndex];
+
         var coords = item.geometry.coordinates;
         var lat = coords[1];
         var lon = coords[0];
@@ -90,38 +105,96 @@ var ebolaMap = {
         var counterText =
             'case: ' + ebolaMap.currentIndex + '/' + ebolaMap.features.length;
         $('#count').html(counterText);
-
         ebolaMap.heatmapData.push(new google.maps.LatLng(lat, lon));
 
-        ebolaMap.setDateOnScreen(item);
+        ebolaMap.addIncidentPin(lat, lon);
 
-        ebolaMap.setCurrentBounds(lat, lon);
+        ebolaMap.setDateOnScreen(item);
 
         ebolaMap.currentIndex++;
 
         if (ebolaMap.currentIndex < ebolaMap.features.length) {
           ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 5);
         }
+
+      }
+    },
+
+     // Add a pin for an incident.  Give the pin an animation effect.
+    addIncidentPin: function(lat, lon) {
+        var location = new google.maps.LatLng(lat, lon);
+
+        var outer = new google.maps.Marker({
+          position: location,
+          clickable: false,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillOpacity: 0.5,
+            fillColor: 'rgb(213, 102, 102)',
+            strokeOpacity: 1.0,
+            strokeColor: 'rgb(213, 102, 102)',
+            strokeWeight: 1.0,
+            scale: 0,
+          },
+          optimized: false,
+          zIndex: this.currentIndex,
+          map: this.map
+        });
+
+        var inner = new google.maps.Marker({
+          position: location,
+          clickable: false,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillOpacity: 1.0,
+            fillColor: 'rgb(213, 102, 102)',
+            strokeWeight: 0,
+            scale: 0
+          },
+          optimized: false,
+          zIndex: ebolaMap.currentIndex
+        });
+
+        for (var i = 0; i <= 10; i++) {
+          setTimeout(this.setScale(inner, outer, i / 10), i * 60);
+        }
+    },
+
+    // Scale a pin to give it an animated appearance.
+    setScale: function(inner, outer, scale) {
+      return function() {
+        if (scale == 1) {
+          outer.setMap(null);
+        } else {
+          var icono = outer.get('icon');
+          icono.strokeOpacity = Math.cos((Math.PI/2) * scale);
+          icono.fillOpacity = icono.strokeOpacity * 0.5;
+          icono.scale = Math.sin((Math.PI/2) * scale) * 15;
+          outer.set('icon', icono);
+
+          var iconi = inner.get('icon');
+          var newScale = (icono.scale < 2.0 ? 0.0 : 2.0);
+          if (iconi.scale != newScale) {
+            iconi.scale = newScale;
+            inner.set('icon', iconi);
+            if (!inner.getMap()) inner.setMap(ebolaMap.map);
+          }
+        }
       }
     },
 
     // Add coordinates and reset the viewport.
     setCurrentBounds: function(lat, lon) {
+
       var mapPoint = new google.maps.LatLng(lat, lon);
       this.boundsArray.push(mapPoint);
 
-      this.startBoundsSetter();
-    },
+      var bounds = new google.maps.LatLngBounds;
+      ebolaMap.boundsArray.forEach(function(latlng) {
+        bounds.extend(latlng);
+      });
+      ebolaMap.map.fitBounds(bounds);
 
-    // Only set the bounds from time to time, so its not so shaky.
-    startBoundsSetter: function() {
-      setTimeout(function() {
-        var bounds = new google.maps.LatLngBounds;
-        ebolaMap.boundsArray.forEach(function(latlng) {
-          bounds.extend(latlng);
-        });
-        ebolaMap.map.fitBounds(bounds);
-      }, 500);
     },
 
     // Set/update the current date of the pin being placed.
