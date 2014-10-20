@@ -130,6 +130,8 @@ var ebolaMap = {
 
         if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
           ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 1);
+        } else {
+          document.getElementById('control-icon').style.opacity = 0;
         }
       }
     },
@@ -296,6 +298,8 @@ var ebolaMap = {
 
         if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
           ebolaMap.pinInterval = setTimeout(ebolaMap.setMapboxMarkers, 1);
+        } else {
+          document.getElementById('play-button').style.opacity = 0;
         }
       }
     },
