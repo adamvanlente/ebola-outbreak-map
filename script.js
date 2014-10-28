@@ -27,12 +27,23 @@ var ebolaMap = {
       });
     },
 
+    setLayerOpacity: function(opacity, layer) {
+
+      for (var i = 0; i < 100; i++) {
+        if (layer.getFeatureStyle(i)) {
+          var style = layer.getFeatureStyle(i);
+          style.strokeOpacity = opacity;
+          style.fillOpacity = opacity;
+        }
+      }
+
+    },
+
     // Set the map.
     loadMap: function() {
-
       if (window.google) {
         this.map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 4,
+          zoom: 5,
           center: new google.maps.LatLng(10, -10),
           mapTypeId: google.maps.MapTypeId.ROADMAP,
           styles: [{
@@ -46,6 +57,27 @@ var ebolaMap = {
           }],
           disableDefaultUI: true
         });
+
+    var dynamicLayer = new google.maps.visualization.DynamicMapsEngineLayer({
+        layerId: '12139677418250848005-16891797349373911882',
+        map: this.map
+    });
+
+      ebolaMap.dynamicLayer = dynamicLayer;
+
+    var mapsEngineLayer2 = new google.maps.visualization.MapsEngineLayer({
+        layerId: '12139677418250848005-13852721410408423581'
+    });
+    mapsEngineLayer2.setMap(this.map);
+
+    var mapsEngineLayer3 = new google.maps.visualization.MapsEngineLayer({
+        layerId: '12139677418250848005-14011255197892439044'
+    });
+    mapsEngineLayer3.setMap(this.map);
+
+    var mapsEngineLayer4 = new google.maps.visualization.MapsEngineLayer({
+        layerId: '12139677418250848005-15566779248821655582'  });
+    mapsEngineLayer4.setMap(this.map);
         this.setHeatmap();
       } else {
 
@@ -85,9 +117,12 @@ var ebolaMap = {
           this.isPlaying = false;
           $('#control-icon').attr('class', 'fa fa-play');
           window.clearInterval(this.pinInterval);
+          ebolaMap.setLayerOpacity('0.8', ebolaMap.dynamicLayer);
+
         } else {
           $('#control-icon').attr('class', 'fa fa-pause');
           this.placePinsOnMap();
+          ebolaMap.setLayerOpacity('0.05', ebolaMap.dynamicLayer);
         }
       }
     },
@@ -113,13 +148,7 @@ var ebolaMap = {
 
         var cat = item.properties.Category;
         var val = item.properties.Value;
-        if (cat == 'Deaths') {
-          console.log(val);
-        }
 
-        // var counterText =
-        //     'case: ' + ebolaMap.currentIndex;
-        // $('#count').html(counterText);
         ebolaMap.heatmapData.push(new google.maps.LatLng(lat, lon));
 
         ebolaMap.addIncidentPin(lat, lon);
@@ -131,7 +160,8 @@ var ebolaMap = {
         if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
           ebolaMap.pinInterval = setTimeout(ebolaMap.placePinsOnMap, 1);
         } else {
-          document.getElementById('control-icon').style.opacity = 0;
+          ebolaMap.setLayerOpacity('0.8', ebolaMap.dynamicLayer);
+          $('#control-icon').fadeTo(100, 0.0);
         }
       }
     },
@@ -233,85 +263,6 @@ var ebolaMap = {
       $('#year').html(newYear);
       $('#month').html(newMonth);
       $('#day').html(newDay);
-
-    },
-
-    playPauseMapbox: function() {
-
-      if (ebolaMap.features) {
-
-        if (ebolaMap.isPlaying) {
-          ebolaMap.isPlaying = false;
-          $('#play-button').attr('class', 'fa fa-play');
-          window.clearInterval(ebolaMap.pinInterval)
-        } else {
-          $('#play-button').attr('class', 'fa fa-pause');
-          this.setMapboxMarkers();
-        }
-
-
-      } else {
-        var msg = 'Data is not yet loaded.';
-        this.setMsg(msg);
-      }
-
-    },
-
-    setMapboxMarkers: function() {
-
-      this.isPlaying = true;
-
-      var features = ebolaMap.features;
-
-      features.sort(function(a,b) {
-        return
-            parseInt(a.properties.Date,10) - parseInt(b.properties.Date,10);
-      });
-
-      if (features[ebolaMap.currentIndex]) {
-        var item = features[ebolaMap.currentIndex];
-
-        ebolaMap.setDateOnScreen(item);
-
-        var coords = item.geometry.coordinates;
-        var lat = coords[1];
-        var lon = coords[0];
-
-        ebolaMap.heatLayer.addLatLng([lat, lon]);
-
-        var cat = item.properties.Category;
-        var val = item.properties.Value;
-
-        var marker = L.circleMarker(new L.LatLng(lat, lon), {
-          'stroke': true,
-          'weight': 3,
-          'opacity': 0.5,
-          'color': '#000',
-          'fillColor': '#000'
-        });
-
-        marker.addTo(ebolaMap.mapboxMap);
-
-        ebolaMap.updateMapboxMarker(marker);
-
-        ebolaMap.currentIndex++;
-
-        if (ebolaMap.currentIndex < ebolaMap.features.length - 1) {
-          ebolaMap.pinInterval = setTimeout(ebolaMap.setMapboxMarkers, 1);
-        } else {
-          document.getElementById('play-button').style.opacity = 0;
-        }
-      }
-    },
-
-    updateMapboxMarker: function(marker) {
-      setTimeout(function() {
-      marker.setStyle({
-        'fillColor':'#f86767',
-        'opacity': 0
-      });
-    }, 200)
-
     },
 
     // Set a message for the user.
